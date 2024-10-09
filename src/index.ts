@@ -5,7 +5,9 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 
 import userRoutes from "./routes/user";
+import listingRoute from "./routes/listing";
 import { errorHandler } from "./utils/error";
+import {v2 as cloudinary} from "cloudinary"
 
 dotenv.config();
 
@@ -35,8 +37,14 @@ mongoose
   .then(() => console.log("Connected to MongoDB..."))
   .catch((err) => console.error("Could not connect to MongoDB:", err));
 
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 // Routes
 app.use("/api/user", userRoutes);
+app.use("/api/listing",listingRoute);
 
 // Error handling middleware
 app.use(errorHandler);

@@ -40,25 +40,27 @@ export const register = catchAsync(
 export const login = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = await User.findOne({ email: req.body.email });
-
+    
     if (!user) {
       return next(new AppError("Invalid credentials", 401));
     }
-
+    
     const isMatch = user.comparePassword(req.body.password);
     if (!isMatch) {
       return next(new AppError("Invalid credentials", 401));
     }
-
+    
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET as string,
       { expiresIn: "24d" }
     );
+    console.log(token)
     res.cookie("auth_token", token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
     });
     res.status(201).json({
       userId: user._id,
