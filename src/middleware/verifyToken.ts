@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import User from "../models/user";
+import { Types } from "mongoose";
 
 declare global {
   namespace Express {
     interface Request {
-      userId: string;
+      userId: Types.ObjectId;
     }
   }
 }
@@ -23,15 +24,11 @@ export const verifyToken = async (
     });
     return;
   }
-
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
     req.userId = (decoded as JwtPayload).userId;
-    const user = await User.findOne((decoded as JwtPayload).userId);
-    if (!user) {
-     res.status(400).json("User no longer exists!");
-     return 
-    }
+    // console.log(decoded)
+    
     next();
   } catch (error) {
     // console.log("error verify token", error);

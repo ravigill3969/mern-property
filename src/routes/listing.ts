@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../middleware/verifyToken";
-import { createListing,getMyListings } from "../controllers/listing";
+import { createListing, getMyListings } from "../controllers/listing";
 import multer from "multer";
 
 const storage = multer.memoryStorage();
@@ -25,7 +25,7 @@ function test(req: Request, res: Response, next: NextFunction) {
 
 const router = express.Router();
 
-router.get("/",verifyToken,getMyListings)
+router.get("/", verifyToken, getMyListings);
 router.post("/", verifyToken, upload.array("files", 6), createListing);
 
 export default router;

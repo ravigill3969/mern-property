@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 // Define the TypeScript interface for a listing
 export interface IListing extends Document {
-  userId: string; // userId is stored as an ObjectId in MongoDB
+  userId: Types.ObjectId; // userId is stored as an ObjectId in MongoDB
   fullname: string;
   email: string;
   phoneNumber: string;
@@ -43,7 +43,7 @@ export interface IListing extends Document {
 // Define the Mongoose schema for Listing
 const ListingSchema: Schema<IListing> = new Schema(
   {
-    userId: { type: String, required: true, ref: "User" }, // Reference to User model
+    userId: { type: Schema.Types.ObjectId, required: true, ref: "User" }, // Reference to User model
     fullname: { type: String, required: true },
     email: { type: String, required: true },
     phoneNumber: { type: String, required: true },

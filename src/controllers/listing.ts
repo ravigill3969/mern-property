@@ -6,8 +6,7 @@ import cloudinary from "cloudinary";
 
 export const createListing = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log("Received file:", req.file); // Check if the file is received
-    console.log("Form data:", req.body); // Log the form data
+    console.log("userID:", req.userId); // Log the form data
 
     const imageFiles = req.files as Express.Multer.File[];
 
@@ -16,17 +15,24 @@ export const createListing = catchAsync(
     newListing.userId = req.userId;
     newListing.images = imageUrls;
 
-    await newListing.save()
+    await newListing.save();
+    console.log(newListing)
 
     res.status(201).json(newListing);
   }
 );
 
 export const getMyListings = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-        
-    }
-)
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.userId;
+    console.log(userId)
+    const listings = await Listing.find({userId})
+
+    // console.log(listings)
+
+    res.status(200).send(listings)
+  }
+);
 
 const uploadImage = async (imageFiles: Express.Multer.File[]) => {
   const uploadPromises = imageFiles.map(async (image) => {
