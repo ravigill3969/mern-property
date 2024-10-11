@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 import User from "../models/user";
-import { AppError } from "../utils/error";
+import { AppError } from "../utils/error"
 import catchAsync from "../utils/catchAsync";
 
 export const register = catchAsync(
