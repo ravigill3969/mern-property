@@ -19,8 +19,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: "https://mern-property-frontend.onrender.com",
-     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
@@ -49,7 +49,7 @@ cloudinary.config({
 // Routes
 app.use("/api/user", userRoutes);
 app.use("/api/listing", listingRoute);
-app.use("/api/search",listingSearchRoute)
+app.use("/api/search", listingSearchRoute);
 
 // Error handling middleware
 app.use(errorHandler);

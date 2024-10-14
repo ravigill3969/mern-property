@@ -7,17 +7,21 @@ import { AppError } from "../utils/error";
 
 export const createListing = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-
     const imageFiles = req.files as Express.Multer.File[];
-
-    const imageUrls = await uploadImage(imageFiles);
-    const newListing = new Listing(req.body);
-    newListing.userId = req.userId;
-
-    await newListing.save();
-
-    res.status(201).json(newListing);
-  }
+try {
+  
+  
+  const imageUrls = await uploadImage(imageFiles);
+  const newListing = new Listing(req.body);
+  newListing.userId = req.userId;
+  newListing.images = imageUrls;
+  await newListing.save();
+  
+  res.status(201).json(newListing);
+} catch (error) {
+  console.log(error)
+}
+}
 );
 
 export const getMyListings = catchAsync(
@@ -31,7 +35,6 @@ export const getMyListings = catchAsync(
 
 export const updateMyListing = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-
     let listing = await Listing.findById(req.params.id);
     if (!listing) {
       return next(new AppError("Listing not found", 404));
