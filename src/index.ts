@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: "https://mern-property-backend.onrender.com",
+    origin: "https://mern-property-frontend.onrender.com",
     credentials: true,
   })
 );
