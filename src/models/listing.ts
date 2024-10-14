@@ -76,7 +76,7 @@ const ListingSchema: Schema<IListing> = new Schema(
     furnishedStatus: { type: String, required: true },
     parkingAvailability: { type: Boolean },
     utilitiesIncluded: { type: Boolean },
-    petPolicy: { type: String, required: true },
+    petPolicy: { type: String },
     nearbyFacilities: { type: [String], required: true },
     askingPrice: { type: String },
     hoaFees: { type: String },

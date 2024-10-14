@@ -2,69 +2,107 @@ import Listing, { IListing } from "../models/listing";
 import catchAsync from "../utils/catchAsync";
 import { NextFunction, Request, Response } from "express";
 
+type SearchQueryParams = {
+  parkingAvailability?: string;
+  utilitiesIncluded?: string;
+  sortOption?: "lastUpdated" | "priceLowToHigh" | "priceHighToLow";
+  typeOfProperty?: IListing["propertyType"];
+  type?: IListing["rentOrSale"];
+  page?: string;
+  rentPrice?: string;
+  salePrice?: string;
+  destination?: string;
+};
+
+type MongoQuery = {
+  rentOrSale: IListing["rentOrSale"];
+  propertyType: IListing["propertyType"];
+  parkingAvailability?: boolean;
+  utilitiesIncluded?: boolean;
+  monthlyRent?: { $lte: number };
+  askingPrice?: { $lte: number };
+  $or?: Array<{ city: RegExp } | { state: RegExp } | { country: RegExp }>;
+};
+
 export const searchListing = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (
+    req: Request<{}, {}, {}, SearchQueryParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
     const {
-      parking: parkingAvailability,
-      utilities: utilitiesIncluded,
+      parkingAvailability,
+      utilitiesIncluded,
       sortOption = "lastUpdated",
       typeOfProperty = "Apartment",
       type = "rent",
       page = "1",
       rentPrice = "0",
       salePrice = "0",
+      destination,
     } = req.query;
 
-    // Parse and validate query parameters
-    const parsedPage = parseInt(page as string);
-    const parsedRentPrice = parseInt(rentPrice as string);
-    const parsedSalePrice = parseInt(salePrice as string);
+    const parsedPage = Math.max(1, parseInt(page));
+    const parsedRentPrice = Math.max(0, parseInt(rentPrice));
+    const parsedSalePrice = Math.max(0, parseInt(salePrice));
 
-    if (isNaN(parsedPage) || parsedPage < 1) {
+    if (isNaN(parsedPage)) {
       return res.status(400).json({ error: "Invalid page number" });
     }
 
-    if (isNaN(parsedRentPrice) || parsedRentPrice < 0) {
+    if (isNaN(parsedRentPrice)) {
       return res.status(400).json({ error: "Invalid rent price" });
     }
 
-    if (isNaN(parsedSalePrice) || parsedSalePrice < 0) {
+    if (isNaN(parsedSalePrice)) {
       return res.status(400).json({ error: "Invalid sale price" });
     }
 
-    // Build query object
-    const query: any = {
+    const query: MongoQuery = {
       rentOrSale: type as IListing["rentOrSale"],
       propertyType: typeOfProperty as IListing["propertyType"],
-      ...(parkingAvailability !== undefined && {
-        parkingAvailability: parkingAvailability === "true",
-      }),
-      ...(utilitiesIncluded !== undefined && {
-        utilitiesIncluded: utilitiesIncluded === "true",
-      }),
     };
 
-    // Handling rent-specific queries
-    if (type === "sale") {
-      query.askingPrice = { $lte: parsedSalePrice.toString() };
+    // Fix: Correctly handle parkingAvailability
+    if (parkingAvailability !== undefined) {
+      query.parkingAvailability = parkingAvailability === "true";
     }
 
-    // Define sort options
-    const sortOptions: { [key: string]: any } = {
+    // Fix: Correctly handle utilitiesIncluded
+    if (utilitiesIncluded !== undefined) {
+      query.utilitiesIncluded = utilitiesIncluded === "true";
+    }
+
+    if (type === "rent" && parsedRentPrice > 0) {
+      query.monthlyRent = { $lte: parsedRentPrice };
+    }
+
+    if (type === "sale" && parsedSalePrice > 0) {
+      query.askingPrice = { $lte: parsedSalePrice };
+    }
+
+    if (destination) {
+      query.$or = [
+        { city: new RegExp(destination, "i") },
+        { state: new RegExp(destination, "i") },
+        { country: new RegExp(destination, "i") },
+      ];
+    }
+
+    const sortOptions: Record<typeof sortOption, Record<string, 1 | -1>> = {
       lastUpdated: { updatedAt: -1 },
       priceLowToHigh: type === "rent" ? { monthlyRent: 1 } : { askingPrice: 1 },
       priceHighToLow:
         type === "rent" ? { monthlyRent: -1 } : { askingPrice: -1 },
     };
-    console.log(query);
+
+    console.log("Query:", query);
 
     try {
-      // Perform database query
       const results = await Listing.find(query)
-        .sort(sortOptions[sortOption as string] || sortOptions.lastUpdated)
+        .sort(sortOptions[sortOption])
         .skip((parsedPage - 1) * 10)
         .limit(10);
-
 
       const totalCount = await Listing.countDocuments(query);
 
