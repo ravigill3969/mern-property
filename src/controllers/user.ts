@@ -28,7 +28,8 @@ export const register = catchAsync(
     res.cookie("auth_token", token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
+      sameSite: "None",
     });
     res.status(201).json({
       userId: user._id,
@@ -58,8 +59,8 @@ export const login = catchAsync(
     res.cookie("auth_token", token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "None",
     });
     res.status(201).json({
       userId: user._id,
