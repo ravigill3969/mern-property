@@ -29,7 +29,7 @@ export const register = catchAsync(
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
       secure: true,
-      sameSite: "None",
+      sameSite: "none",
     });
     res.status(201).json({
       userId: user._id,
@@ -60,7 +60,7 @@ export const login = catchAsync(
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
       secure: true,
-      sameSite: "None",
+      sameSite: "none",
     });
     res.status(201).json({
       userId: user._id,
