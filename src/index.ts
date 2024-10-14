@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 
 import userRoutes from "./routes/user";
 import listingRoute from "./routes/listing";
+import listingSearchRoute from "./routes/listingSearch";
 import { errorHandler } from "./utils/error";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -47,6 +48,7 @@ cloudinary.config({
 // Routes
 app.use("/api/user", userRoutes);
 app.use("/api/listing", listingRoute);
+app.use("/api/search",listingSearchRoute)
 
 // Error handling middleware
 app.use(errorHandler);

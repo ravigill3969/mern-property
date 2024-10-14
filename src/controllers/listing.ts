@@ -10,10 +10,9 @@ export const createListing = catchAsync(
 
     const imageFiles = req.files as Express.Multer.File[];
 
-    const imageUrls = await uploadImage(imageFiles);
+    // const imageUrls = await uploadImage(imageFiles);
     const newListing = new Listing(req.body);
     newListing.userId = req.userId;
-    newListing.images = imageUrls;
 
     await newListing.save();
 
