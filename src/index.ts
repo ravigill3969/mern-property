@@ -20,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: "https://mern-property-frontend.onrender.com",
+     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   })
 );
